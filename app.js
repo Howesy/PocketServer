@@ -1,5 +1,5 @@
 const express = require("express");
-const {readdir, access} = require("fs");
+const {access} = require("fs");
 const application = express();
 const specifiedPort = 3000;
 
