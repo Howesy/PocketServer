@@ -1,40 +1,27 @@
 const express = require("express");
-const {resolve} = require("path");
-const {readdir} = require("fs");
+const {readdir, access} = require("fs");
 const application = express();
 const specifiedPort = 3000;
 
 //Serve static files contained within the public directory.
+application.use(express.static("public"))
 
-application.use(express.static("public"));
 
-handleHTMLDocuments();
-
-/**
- * Scan and handle GET requests for HTML documents contained within the current directory.
- * @author Howesy
- */
-
-function handleHTMLDocuments() {
-    readdir(__dirname, function(error, documents) {
-        if (error) throw new Error(error);
-        documents.filter(document => document.endsWith(".html"))
-        .forEach(htmlDocument => handlePageRequest(htmlDocument));
+//Handle wildcard routing dynamically and account for errors with custom error handler.
+application.get("*", function(request, response, next) {
+    const [requestedPage] = Object.values(request.params);
+    const constructedPath = __dirname + requestedPage;
+    access(constructedPath, function(error) {
+        if (error) next(error);
+        response.sendFile(constructedPath);
     });
-}
+});
 
-/**
- * Handle GET request to specified HTML document.
- * @param {string} specifiedPage Desired HTML document to handle a GET request for.
- */
-
-function handlePageRequest(specifiedPage) {
-    application.get(`/${specifiedPage}`, function(request, response) {
-        const resolvedPath = resolve(__dirname, specifiedPage);
-        response.sendFile(resolvedPath);
-    });
-}
+//Define our own custom error handler.
+application.use(function(error, request, response, next) {
+    console.error(error.stack);
+    response.status(500).send(error.stack);
+});
 
 //Initialize the express application to listen on our specified port: [3000] and send a conformation message.
-
 application.listen(specifiedPort, () => console.log("Server successfully initialized."));
