@@ -6,7 +6,6 @@ const specifiedPort = 3000;
 //Serve static files contained within the public directory.
 application.use(express.static("public"))
 
-
 //Handle wildcard routing dynamically and account for errors with custom error handler.
 application.get("*", function(request, response, next) {
     const [requestedPage] = Object.values(request.params);
