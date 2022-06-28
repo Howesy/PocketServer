@@ -26,3 +26,9 @@ function actualizeView(viewName, ...desiredMiddleware) {
         response.render(viewName);
     });
 }
+
+function destroySession(request) {
+    request.session.destroy(function(error) {
+        if (error) throw new Error(error);
+    });
+}
