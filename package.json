@@ -1,0 +1,26 @@
+{
+  "name": "pocketserver",
+  "version": "1.0.0",
+  "description": "PocketServer",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "ejs": "^3.1.8",
+    "express": "^4.18.1",
+    "express-session": "^1.17.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Howesy/PocketServer.git"
+  },
+  "author": "Howesy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Howesy/PocketServer/issues"
+  },
+  "homepage": "https://github.com/Howesy/PocketServer#readme"
+}

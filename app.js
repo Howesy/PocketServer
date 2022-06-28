@@ -1,26 +1,53 @@
 const express = require("express");
-const {access} = require("fs");
+const session = require("express-session");
+const { urlencoded, json } = require("body-parser");
+const { readdir } = require("fs");
+const { join } = require("path");
 const application = express();
 const specifiedPort = 3000;
 
-//Serve static files contained within the public directory.
-application.use(express.static("public"))
+application.use("/assets", express.static(__dirname + `/assets`));
+application.set("view engine", "ejs");
+application.use(urlencoded({ extended: false }));
+application.use(json());
 
-//Handle wildcard routing dynamically and account for errors with custom error handler.
-application.get("*", function(request, response, next) {
-    const [requestedPage] = Object.values(request.params);
-    const constructedPath = __dirname + requestedPage;
-    access(constructedPath, function(error) {
-        if (error) next(error);
-        response.sendFile(constructedPath);
-    });
-});
+application.use(
+    session({
+        secret: "YourIncredibleSecretTellNobody",
+        resave: false,
+        saveUninitialized: false
+    })
+);
 
-//Define our own custom error handler.
-application.use(function(error, request, response, next) {
-    console.error(error.stack);
-    response.status(500).send(error.stack);
-});
+tractualizeViews();
 
-//Initialize the express application to listen on our specified port: [3000] and send a conformation message.
 application.listen(specifiedPort, () => console.log("Server successfully initialized."));
+
+
+//Actualize view into existence, when called upon on the server; will display the view passed.
+function actualizeView(viewName, ...desiredMiddleware) {
+    application.get(`/${viewName}`, desiredMiddleware, function(request, response) {
+        response.render(viewName);
+    });
+}
+
+//Traverse views directory and actualize any existing views within with the desired middleware passed.
+function tractualizeViews(...desiredMiddleware) {
+    const viewDirectory = join(__dirname, "views");
+    readdir(viewDirectory, function(error, files) {
+        if (error) throw new Error(error);
+        files.forEach(function(file) {
+            if (file.endsWith(".ejs")) {
+                const fileName = file.split(".")[0];
+                actualizeView(fileName, desiredMiddleware);
+            }
+        });
+    });
+}
+
+//Destroy the current existing session with the provided request object.
+function destroySession(request) {
+    request.session.destroy(function(error) {
+        if (error) throw new Error(error);
+    });
+}
