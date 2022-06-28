@@ -6,11 +6,16 @@ const { join } = require("path");
 const application = express();
 const specifiedPort = 3000;
 
+//Serve all assets within the "assets" folder to the server, so webpages can access them.
 application.use("/assets", express.static(__dirname + `/assets`));
+//Initialize the ejs view engine, so the server can display this type of webpage.
 application.set("view engine", "ejs");
+//Use middleware to only allow UTF-8 content in the body.
 application.use(urlencoded({ extended: false }));
+//Use middleware that only parses JSON content.
 application.use(json());
 
+//Initialize a session on the server.
 application.use(
     session({
         secret: "YourIncredibleSecretTellNobody",
@@ -19,10 +24,11 @@ application.use(
     })
 );
 
+//Serve all views within the "views" directory to the user.
 tractualizeViews();
 
+//Initialize server and listen on port: 3000
 application.listen(specifiedPort, () => console.log("Server successfully initialized."));
-
 
 //Actualize view into existence, when called upon on the server; will display the view passed.
 function actualizeView(viewName, ...desiredMiddleware) {
