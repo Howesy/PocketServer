@@ -9,6 +9,14 @@ application.set("view engine", "ejs");
 application.use(urlencoded({ extended: false }));
 application.use(json());
 
+application.use(
+    session({
+        secret: "YourIncredibleSecretTellNobody",
+        resave: false,
+        saveUninitialized: false
+    })
+);
+
 actualizeView("index");
 
 application.listen(specifiedPort, () => console.log("Server successfully initialized."));
