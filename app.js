@@ -1,26 +1,20 @@
 const express = require("express");
-const {access} = require("fs");
+const session = require("express-session");
+const {join} = require("path");
+const { urlencoded, json } = require("body-parser");
 const application = express();
 const specifiedPort = 3000;
 
-//Serve static files contained within the public directory.
-application.use(express.static("public"))
+application.use("/assets", express.static(__dirname + `/assets`));
+application.use("views", join(__dirname, "views"));
+application.set("view engine", "ejs");
+application.use(urlencoded({ extended: false }));
+application.use(json());
 
-//Handle wildcard routing dynamically and account for errors with custom error handler.
-application.get("*", function(request, response, next) {
-    const [requestedPage] = Object.values(request.params);
-    const constructedPath = __dirname + requestedPage;
-    access(constructedPath, function(error) {
-        if (error) next(error);
-        response.sendFile(constructedPath);
-    });
-});
-
-//Define our own custom error handler.
-application.use(function(error, request, response, next) {
-    console.error(error.stack);
-    response.status(500).send(error.stack);
-});
-
-//Initialize the express application to listen on our specified port: [3000] and send a conformation message.
 application.listen(specifiedPort, () => console.log("Server successfully initialized."));
+
+function actualizeView(viewName, ...desiredMiddleware) {
+    application.get(`/${viewName}`, desiredMiddleware, function(request, response) {
+        response.render(viewName);
+    });
+}
